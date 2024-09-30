@@ -167,3 +167,36 @@ export const createPropertyAction = async (
   }
   redirect("/");
 };
+
+export const fetchProperties = async ({
+  search = "",
+  category,
+}: {
+  search?: string;
+  category?: string;
+}) => {
+  const properties = await db.property.findMany({
+    // фільтрація даних
+    where: {
+      category,
+      OR: [
+        { name: { contains: search, mode: "insensitive" } },
+        { tagline: { contains: search, mode: "insensitive" } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      tagline: true,
+      country: true,
+      price: true,
+      image: true,
+    },
+    // сортування від нових до старих
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return properties;
+};
